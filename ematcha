@@ -177,7 +177,7 @@ if [ -f "$src" ] ; then
 		read -p ":" qu < /dev/tty
 		echo
 		page="$(( $page + 1 ))"
-		if [[ "$qu" == "q" || "$qu" == "Q" ]] ; then echo -e "\e[1;0m]" ; exit 0 ; fi
+		if [[ "$qu" == "q" || "$qu" == "Q" ]] ; then echo -e "\e[1;0m" ; exit 0 ; fi
 	    fi
 	done < "$tmpdir/$tmpfile1"
 	
