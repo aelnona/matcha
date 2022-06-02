@@ -15,6 +15,7 @@
 
 # Depends on links, python3, imagemagick, unzip
 # Requires a terminal with support for sixels (e.g. Xterm -ti vt340)
+# Requires resize command
 
 # If your file contains MATCHAIMAGESTART and MATCHAIMAGEEND, then this mightn't work properly, why would you even have those in there in the first place? Might add some safety net in the future, but I can't see any real need for it, so probably not. 
 
@@ -72,7 +73,7 @@ while getopts "f:t:s:p:rlh" flag ; do
 done
 
 # Quit if no input file is provided
-if [ "$src" == "" ] ; then
+if [ -z "$src" ] ; then
     print_help
     exit 1
 fi
@@ -106,7 +107,7 @@ if [ -f "$src" ] ; then
     contents="$(grep -hwiE "item.*\.x?html" $(realpath $(find | grep ".opf")))"
     
     # Go to parent folder of contents, as hrefs in contents.opf are pretty much always relative to itself
-    tmpdir="$(realpath $(dirname -z $( find | grep ".opf" )))"
+    tmpdir="$(realpath $(dirname $( find | grep ".opf" )))"
     cd $tmpdir
     
     # For each html file in contents
@@ -135,18 +136,18 @@ if [ -f "$src" ] ; then
 
 	    # Skip to page if user has overridden. Seems inefficient
 	    if [ "$overridepage" -gt "$page" ] ; then
-		n=$(( $n + 1 ))
-		if [ $(($n % $pagelength)) == 0 ] ; then page=$(($page + 1)) ; fi
+		n="$(( $n + 1 ))"
+		if [ "$(($n % $pagelength))" == "0" ] ; then page="$(($page + 1))" ; fi
 		continue
 	    fi
 	    
 	    # Check if image. Probably stupidly inefficient
-	    if [[ "$line" =~ "^.*MATCHAIMAGESTART.*MATCHAIMAGEEND$" ]] ; then
+	    if [ -n "$( echo -n "$line" | grep -e "MATCHAIMAGESTART" -e "MATCHAIMAGEEND" )" ] ; then
 
 		# Store contents of line in variable and remove tags. Should leave you with the file path
 
 		# Go to folder containing html file
-		cd $(dirname "$file")
+		cd "$(dirname "$file")"
 
 		# Get path to image (only necessary if html files are in separate directories to image files)
 		img="$( realpath "$(echo "$line" | sed 's/MATCHAIMAGESTART//g ; s/MATCHAIMAGEEND//g ; s/%20/ /g' )" )"
@@ -161,12 +162,12 @@ if [ -f "$src" ] ; then
 
 		# n is used to keep track of how many lines there are left to print before we need to
 		# wait for user input to go to next page, and images will take up a lot of space
-		n=$(( n + (( $pagelength + 4 )/ $imgscale) )) 
+		n="$(( n + (( $pagelength + 4 )/ $imgscale) ))"
 	    else
 		# If not image, print line 
 		echo "$margin$line"
 		# Increment line counter
-		n=$(( n + 1 ))
+		n="$(( n + 1 ))"
 	    fi
 	    # If at pagelength, user needs to press enter to continue (or q to quit)
 	    if [ $(($n % $pagelength)) == 0 ] ; then
@@ -175,7 +176,7 @@ if [ -f "$src" ] ; then
 		# Get user input
 		read -p ":" qu < /dev/tty
 		echo
-		page=$(( $page + 1 ))
+		page="$(( $page + 1 ))"
 		if [[ "$qu" == "q" || "$qu" == "Q" ]] ; then echo -e "\e[1;0m]" ; exit 0 ; fi
 	    fi
 	done < "$tmpdir/$tmpfile1"
