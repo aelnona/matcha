@@ -1,7 +1,7 @@
 #!/bin/sh
  
 # USAGE:
-# matcha [-f [file]] [-t [directory]] [-s [section]] [-p [page]] [-r] [-l]
+# ematcha [-f [file]] [-t [directory]] [-s [section]] [-p [page]] [-r] [-l]
 #
 # -f [file]             : open file [file]
 # -t [directory]        : use directory as $tmpdir
@@ -11,13 +11,13 @@
 # -l                    : use light theme
 
 
-# matcha: a simple (?) epub reader
+# ematcha: a simple (?) epub reader
 
 # Depends on links, python3, imagemagick, unzip, xterm
 # Requires a terminal with support for sixels (e.g. Xterm -ti vt340)
 # Requires resize command
 
-# If your file contains MATCHAIMAGESTART and MATCHAIMAGEEND, then this mightn't work properly, why would you even have those in there in the first place? Might add some safety net in the future, but I can't see any real need for it, so probably not. 
+# If your file contains EMATCHAIMAGESTART and EMATCHAIMAGEEND, then this mightn't work properly, why would you even have those in there in the first place? Might add some safety net in the future, but I can't see any real need for it, so probably not. 
 
 
 # TODO: 
@@ -32,7 +32,7 @@
 
 # HELP ME
 print_help() {
-    echo -e "\nUSAGE: \nmatcha -f [file]\n"
+    echo -e "\nUSAGE: \nematcha -f [file]\n"
     echo "  -f [file]       : open file [file]"
     echo "  -t [directory]  : use [directory] as directory for epub to be unpacked to"
     echo "  -s [section]    : go to section [section]"
@@ -89,8 +89,8 @@ imgheight=$(( $( xdpyinfo | grep "dimensions" | sed 's/[[:blank:]]*dimensions:[[
 margin="        " # YEHA
 
 # Used to store temporary inputs. Probably better ways of doing this
-tmpfile="matchacurrent.html"
-tmpfile1="matchacurrentformatted.html"
+tmpfile="ematchacurrent.html"
+tmpfile1="ematchacurrentformatted.html"
 
 # Check if file exists
 if [ -f "$src" ] ; then
@@ -124,8 +124,8 @@ if [ -f "$src" ] ; then
 	echo -e "Opening $file\n\n" 
 	
 	# Replace image hyperlinks with tags such that they can be found later
-	sed 's/.*<[[:blank:]]*img.*src="\([^"]*\)".*/MATCHAIMAGESTART\1MATCHAIMAGEEND/g' "$file" > "$tmpdir/$tmpfile"
-	sed -i 's/.*<[[:blank:]]*image.*href="\([^"]*\)".*/MATCHAIMAGESTART\1MATCHAIMAGEEND/g' "$tmpdir/$tmpfile"
+	sed 's/.*<[[:blank:]]*img.*src="\([^"]*\)".*/EMATCHAIMAGESTART\1EMATCHAIMAGEEND/g' "$file" > "$tmpdir/$tmpfile"
+	sed -i 's/.*<[[:blank:]]*image.*href="\([^"]*\)".*/EMATCHAIMAGESTART\1EMATCHAIMAGEEND/g' "$tmpdir/$tmpfile"
 	
 	# Convert to readable format via links
 	links -dump "$tmpdir/$tmpfile" > "$tmpdir/$tmpfile1"
@@ -142,7 +142,7 @@ if [ -f "$src" ] ; then
 	    fi
 	    
 	    # Check if image. Probably stupidly inefficient
-	    if [ -n "$( echo -n "$line" | grep -e "MATCHAIMAGESTART" -e "MATCHAIMAGEEND" )" ] ; then
+	    if [ -n "$( echo -n "$line" | grep -e "EMATCHAIMAGESTART" -e "EMATCHAIMAGEEND" )" ] ; then
 
 		# Store contents of line in variable and remove tags. Should leave you with the file path
 
@@ -150,7 +150,7 @@ if [ -f "$src" ] ; then
 		cd "$(dirname "$file")"
 
 		# Get path to image (only necessary if html files are in separate directories to image files)
-		img="$( realpath "$(echo "$line" | sed 's/MATCHAIMAGESTART//g ; s/MATCHAIMAGEEND//g ; s/%20/ /g' )" )"
+		img="$( realpath "$(echo "$line" | sed 's/EMATCHAIMAGESTART//g ; s/EMATCHAIMAGEEND//g ; s/%20/ /g' )" )"
 
 		# Un-URLise ; decode percent encoding using some python
 		# TODO: replace with some function to remove Python dependency
