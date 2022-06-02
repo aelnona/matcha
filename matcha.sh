@@ -13,7 +13,7 @@
 
 # matcha: a simple (?) epub reader
 
-# Depends on links, python3, imagemagick, unzip
+# Depends on links, python3, imagemagick, unzip, xterm
 # Requires a terminal with support for sixels (e.g. Xterm -ti vt340)
 # Requires resize command
 
