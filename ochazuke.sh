@@ -41,6 +41,7 @@ print_help() {
     echo "  -l              : use light theme"
     echo "  -h              : display this help message"
     echo ""
+    echo "When in the reader, press enter for next page, or enter p for previous, and q to quit."
 }
 
 section=1
@@ -181,6 +182,7 @@ if [ -f "$src" ] ; then
 		echo
 		page="$(( $page + 1 ))"
 		if [[ "$qu" == "q" || "$qu" == "Q" ]] ; then echo -e "\e[1;0m" ; exit 0 ; fi
+		if [[ "$qu" == "p" || "$qu" == "P" ]] ; then n="$(( n - 2 ))" ; fi
 	    fi
 	done < "$tmpdir/$tmpfile1"
 	
