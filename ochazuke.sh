@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
  
 # USAGE:
 # ochazuke.sh [-f [file]] [-t [directory]] [-s [section]] [-p [page]] [-r] [-l]
@@ -52,7 +52,7 @@ overridepage=1
 while getopts "f:t:s:p:rlh" flag ; do
     case "${flag}" in
 	# Set file to use (required "option")
-	f ) src="${OPTARG}" ; tmpdir="/tmp/ochazuke-$(basename "$(echo "$src" | sed s/[[:space:]]//g)")/" ; echo "src: $src" ;;
+	f ) src="${OPTARG}" ; tmpdir="/tmp/ochazuke-$(basename "$(echo "$src" | sed s/[[:space:]]//g)")/" ; echo "src: $src" ; echo "tmpdir: $tmpdir" ;;
 	# Set tmpdir (optional)
 	t ) tmpdir="${OPTARG}" ; echo "tmpdir: $tmpdir" ;;
 	# Set light theme (optional)
@@ -97,14 +97,17 @@ if [ -f "$src" ] ; then
 
     # Get absolute paths because... probably better? 
     src=$( realpath "$src" )
+    echo "src: $src"
     tmpdir=$( realpath "$tmpdir" )
+    echo "tmpdir: $tmpdir" 
 
     # Only unpack file if directory does not already exist
-    [ -d "$tmpdir" ] || unzip "${src}" -d "$tmpdir" -o || exit 1
-    cd $tmpdir
+    [ -d "$tmpdir" ] || unzip -o "${src}" -d "$tmpdir" || exit 1
+    cd "$tmpdir"
 
     # Get file contents in opf file
     contents="$(grep -hwiE "item.*\.x?html" $(realpath $(find | grep ".opf")))"
+    echo "$contents" 
     
     # Go to parent folder of contents, as hrefs in contents.opf are pretty much always relative to itself
     tmpdir="$(realpath $(dirname $( find | grep ".opf" )))"
@@ -142,7 +145,7 @@ if [ -f "$src" ] ; then
 	    fi
 	    
 	    # Check if image. Probably stupidly inefficient
-	    if [ -n "$( echo -n "$line" | grep -e "OCHAZUKEIMAGESTART" -e "1OCHAZUKEIMAGEEND" )" ] ; then
+	    if [ -n "$( echo -n "$line" | grep -e "OCHAZUKEIMAGESTART" -e "OCHAZUKEIMAGEEND" )" ] ; then
 
 		# Store contents of line in variable and remove tags. Should leave you with the file path
 
@@ -150,7 +153,7 @@ if [ -f "$src" ] ; then
 		cd "$(dirname "$file")"
 
 		# Get path to image (only necessary if html files are in separate directories to image files)
-		img="$( realpath "$(echo "$line" | sed 's/OCHAZUKEIMAGESTART//g ; s/1OCHAZUKEIMAGEEND//g ; s/%20/ /g' )" )"
+		img="$( realpath "$(echo "$line" | sed 's/OCHAZUKEIMAGESTART//g ; s/OCHAZUKEIMAGEEND//g ; s/%20/ /g' )" )"
 
 		# Un-URLise ; decode percent encoding using some python
 		# TODO: replace with some function to remove Python dependency
