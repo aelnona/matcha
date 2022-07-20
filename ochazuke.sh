@@ -32,7 +32,7 @@
 
 # HELP ME
 print_help() {
-    echo -e "\nUSAGE: \ochazuke.sh -f [file]\n"
+    echo -e "\nUSAGE: ochazuke.sh -f [file]\n"
     echo "  -f [file]       : open file [file]"
     echo "  -t [directory]  : use [directory] as directory for epub to be unpacked to"
     echo "  -s [section]    : go to section [section]"
