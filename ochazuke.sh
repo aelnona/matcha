@@ -82,7 +82,7 @@ fi
 # Number of lines to print before user needs to press enter again. Could definitely be written better but this works.
 pagelength=$(( $( resize | tr -d '\n' | sed 's/.*LINES=//g' | sed 's/;.*;//g' ) - 2 ))
 
-imgscale=2 # As a reciprocal of the scale factor.
+imgscale=3 # As a reciprocal of the scale factor.
 # Gets screen height and divides by imagescale to get height at which images will be displayed
 imgheight=$(( $( xdpyinfo | grep "dimensions" | sed 's/[[:blank:]]*dimensions:[[:blank:]]*[[:digit:]]*x//g ; s/[[:blank:]]*pixels.*//g' | tr -d ' ' ) / $imgscale ))
 
@@ -161,12 +161,27 @@ if [ -f "$src" ] ; then
 		img="$( python3 -c "import sys, urllib.parse as ul; \
 		      	         print(ul.unquote_plus(sys.argv[1]))" "$img" )"
 		
-		# Display image
-		convert "$img" -geometry x${imgheight} sixel:-
-
 		# n is used to keep track of how many lines there are left to print before we need to
 		# wait for user input to go to next page, and images will take up a lot of space
-		n="$(( n + (( $pagelength + 4 )/ $imgscale) ))"
+		incr=$(( $pagelength * 108 / 100 ))
+		n="$(( n + $incr / $imgscale ))"
+
+		# Put image on next page if less than pagelength
+		if [[ $n -gt $pagelength ]] ; then
+			n=$incr
+			echo -n "s${section}p${page} "
+		        read -p ":" qu < /dev/tty
+	       		echo 
+			page="$(( $page + 1 ))"
+	
+			if [[ "$qu" == "q" || "$qu" == "Q" ]] ; then echo -e "\e[1;0m" ; exit 0 ; fi
+			if [[ "$qu" == "p" || "$qu" == "P" ]] ; then n="$(( n - 2 ))" ; fi
+
+		fi
+		
+		# Display image
+		convert "$img" -geometry x${imgheight} -extent x${imgheight} sixel:-
+
 	    else
 		# If not image, print line 
 		echo "$margin$line"
@@ -174,7 +189,8 @@ if [ -f "$src" ] ; then
 		n="$(( n + 1 ))"
 	    fi
 	    # If at pagelength, user needs to press enter to continue (or q to quit)
-	    if [ $(($n % $pagelength)) == 0 ] ; then
+	    if [[ $(($n % $pagelength)) == 0  || $n -gt $pagelength ]] ; then
+		n=1
 		# Display position in book
 		echo -n "s${section}p${page} "
 		# Get user input
