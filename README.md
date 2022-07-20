@@ -1,4 +1,4 @@
-# ematcha
+# ochazuke
 A CLI epub reader for Linux with inline image support
 
 - Depends on links, python3, imagemagick, unzip, xterm
