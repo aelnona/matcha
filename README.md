@@ -1,5 +1,5 @@
 # ochazuke
-A CLI epub reader for Linux with inline image support
+A CLI epub reader for Linux with inline image support (mostly just for me, but here if anyone wants it)
 
 - Depends on links, python3, imagemagick, unzip, xterm
 - Requires a terminal with support for sixels (e.g. Xterm -ti vt340)
